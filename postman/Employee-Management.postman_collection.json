@@ -1,0 +1,42 @@
+{
+  "info": {
+    "name": "PeopleOS Employee Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "employeeId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "List employees - GET",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/employees" }
+    },
+    {
+      "name": "Create employee - POST",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Asha\",\n  \"lastName\": \"Rao\",\n  \"email\": \"asha.rao@example.com\",\n  \"phoneNumber\": \"9876543210\",\n  \"department\": \"Engineering\",\n  \"jobTitle\": \"Frontend Developer\",\n  \"salary\": 85000,\n  \"joiningDate\": \"2026-09-07\"\n}" },
+        "url": "{{baseUrl}}/api/employees"
+      }
+    },
+    {
+      "name": "Get employee - GET",
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/employees/{{employeeId}}" }
+    },
+    {
+      "name": "Update employee - PUT",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Asha\",\n  \"lastName\": \"Rao\",\n  \"email\": \"asha.rao@example.com\",\n  \"phoneNumber\": \"9876543210\",\n  \"department\": \"Engineering\",\n  \"jobTitle\": \"Senior Frontend Developer\",\n  \"salary\": 95000,\n  \"joiningDate\": \"2026-09-07\"\n}" },
+        "url": "{{baseUrl}}/api/employees/{{employeeId}}"
+      }
+    },
+    {
+      "name": "Delete employee - DELETE",
+      "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/employees/{{employeeId}}" }
+    }
+  ]
+}
