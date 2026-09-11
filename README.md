@@ -49,14 +49,7 @@ npm.cmd run build
 
 The form validates required fields, email format, ten-digit phone numbers, positive salary, and joining date. Backend validation and duplicate-email messages are shown in the UI.
 
-## Interview talking points
 
-- Explain the separation between UI, typed models, and the Axios API module.
-- Explain how the Vite proxy avoids development CORS issues.
-- Demonstrate create, list/refresh, edit, and delete.
-- Demonstrate validation, API errors, loading, empty, and confirmation states.
-- Mention the backend DTO validation, service/repository layers, exception handling, and H2 database.
-- Discuss production next steps: authentication, pagination, PostgreSQL, browser tests, and CI.
 
 ## Backend verification
 
