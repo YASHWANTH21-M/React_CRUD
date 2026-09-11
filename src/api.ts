@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { Employee, EmployeePayload } from './types'
 
 const client = axios.create({
-  baseURL: '/api',
+  baseURL: '/api/v1',
   headers: { 'Content-Type': 'application/json' },
 })
 
