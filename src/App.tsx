@@ -15,13 +15,14 @@ import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import SearchIcon from '@mui/icons-material/Search'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
-import { employeeApi } from './api'
+import { authApi, clearAuthSession, employeeApi, getStoredToken, saveAuthSession } from './api'
 import type { ApiError, Employee, EmployeePayload } from './types'
 import './App.css'
 
 const emptyForm: EmployeePayload = { firstName: '', lastName: '', email: '', phoneNumber: '', department: '', jobTitle: '', salary: 0, joiningDate: '' }
 const departments = ['Engineering', 'Finance', 'Human Resources', 'Marketing', 'Operations', 'Sales']
 type FieldErrors = Partial<Record<keyof EmployeePayload, string>>
+type AuthMode = 'login' | 'register'
 
 function errorMessage(error: unknown): string {
   if (axios.isAxiosError<ApiError>(error)) return error.response?.data?.message || 'The server could not complete that request.'
@@ -29,6 +30,14 @@ function errorMessage(error: unknown): string {
 }
 
 function App() {
+  const [token, setToken] = useState<string | null>(getStoredToken())
+  const [authMode, setAuthMode] = useState<AuthMode>('login')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [role, setRole] = useState('USER')
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authError, setAuthError] = useState('')
+
   const [employees, setEmployees] = useState<Employee[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -43,10 +52,54 @@ function App() {
   const [formErrors, setFormErrors] = useState<FieldErrors>({})
 
   const loadEmployees = async () => {
+    const currentToken = getStoredToken()
+    if (!currentToken) {
+      setEmployees([])
+      setLoading(false)
+      return
+    }
+
     setLoading(true); setError('')
     try { setEmployees(await employeeApi.list()) } catch (loadError) { setError(errorMessage(loadError)) } finally { setLoading(false) }
   }
-  useEffect(() => { void loadEmployees() }, [])
+
+  useEffect(() => {
+    if (token) {
+      void loadEmployees()
+    } else {
+      setEmployees([])
+      setLoading(false)
+    }
+  }, [token])
+
+  const handleAuthSubmit = async (event: FormEvent) => {
+    event.preventDefault()
+    setAuthError('')
+    setAuthLoading(true)
+
+    try {
+      const response = authMode === 'login'
+        ? await authApi.login(username, password)
+        : await authApi.register(username, password, role)
+
+      saveAuthSession(response.token, response.role)
+      setToken(response.token)
+      setUsername('')
+      setPassword('')
+      setNotice(response.message || 'Authentication successful')
+    } catch (submitError) {
+      setAuthError(errorMessage(submitError))
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const logout = () => {
+    clearAuthSession()
+    setToken(null)
+    setError('')
+    setNotice('Logged out successfully')
+  }
 
   const filteredEmployees = useMemo(() => employees.filter((employee) => {
     const text = `${employee.firstName} ${employee.lastName} ${employee.email} ${employee.jobTitle}`.toLowerCase()
@@ -90,8 +143,53 @@ function App() {
     catch (deleteError) { setError(errorMessage(deleteError)) } finally { setSaving(false) }
   }
 
+  if (!token) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%)', p: 3 }}>
+        <Card sx={{ width: '100%', maxWidth: 460, p: 1 }}>
+          <CardContent>
+            <Stack spacing={3}>
+              <Box>
+                <Typography variant="overline" color="primary.main">Employee Portal</Typography>
+                <Typography variant="h4" fontWeight={800}>Welcome back</Typography>
+              </Box>
+
+              <Stack direction="row" spacing={1}>
+                <Button variant={authMode === 'login' ? 'contained' : 'outlined'} fullWidth onClick={() => setAuthMode('login')}>Login</Button>
+                <Button variant={authMode === 'register' ? 'contained' : 'outlined'} fullWidth onClick={() => setAuthMode('register')}>Register</Button>
+              </Stack>
+
+              <Box component="form" onSubmit={handleAuthSubmit}>
+                <Stack spacing={2}>
+                  <TextField label="Username" value={username} onChange={(event) => setUsername(event.target.value)} required fullWidth />
+                  <TextField label="Password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required fullWidth />
+
+                  {authMode === 'register' && (
+                    <FormControl fullWidth>
+                      <InputLabel>Role</InputLabel>
+                      <Select value={role} label="Role" onChange={(event) => setRole(event.target.value)}>
+                        <MenuItem value="USER">USER</MenuItem>
+                        <MenuItem value="ADMIN">ADMIN</MenuItem>
+                      </Select>
+                    </FormControl>
+                  )}
+
+                  {authError && <Alert severity="error">{authError}</Alert>}
+
+                  <Button type="submit" variant="contained" size="large" disabled={authLoading}>
+                    {authLoading ? 'Please wait...' : authMode === 'login' ? 'Login' : 'Register'}
+                  </Button>
+                </Stack>
+              </Box>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Box>
+    )
+  }
+
   return <Box className="app-shell">
-    <Box className="topbar"><Container maxWidth="xl"><Stack direction="row" alignItems="center" py={2}><Stack direction="row" spacing={1.5} alignItems="center"><Box className="brand-mark"><GroupsOutlinedIcon /></Box><Typography className="brand-wordmark">TEAM / 01</Typography></Stack></Stack></Container></Box>
+    <Box className="topbar"><Container maxWidth="xl"><Stack direction="row" alignItems="center" justifyContent="space-between" py={2}><Stack direction="row" spacing={1.5} alignItems="center"><Box className="brand-mark"><GroupsOutlinedIcon /></Box><Typography className="brand-wordmark">TEAM / 01</Typography></Stack><Button color="inherit" onClick={logout}>Logout</Button></Stack></Container></Box>
     <Container maxWidth="xl" sx={{ py: { xs: 3, md: 5 } }}>
       <Box className="hero-panel"><Box><Typography className="eyebrow">People directory / September 2026</Typography><Typography variant="h4">Make every teammate<br /><span className="hero-accent">count.</span></Typography><Typography color="text.secondary" mt={1.5} maxWidth={470}>A clear, calm space for the people who move your work forward.</Typography></Box><Box className="hero-orbit" aria-hidden="true"><Box className="orbit-core"><GroupsOutlinedIcon /></Box><Box className="orbit-ring ring-one" /><Box className="orbit-ring ring-two" /></Box></Box>
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={2} mb={4}><Box><Typography className="section-label">TEAM SNAPSHOT</Typography><Typography color="text.secondary" mt={0.5}>Manage your team records and keep employee data up to date.</Typography></Box><Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>Add employee</Button></Stack>

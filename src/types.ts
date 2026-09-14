@@ -17,3 +17,15 @@ export interface ApiError {
   error?: string
   message?: string
 }
+
+export interface AuthRequest {
+  username: string
+  password: string
+  role?: string
+}
+
+export interface AuthResponse {
+  token: string
+  role: string
+  message: string
+}
