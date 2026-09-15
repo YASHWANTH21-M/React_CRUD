@@ -1,8 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
+import { Provider } from 'react-redux'
 import './index.css'
 import App from './App'
+import { AuthProvider } from './context/AuthContext'
+import { store } from './store'
 
 const theme = createTheme({
   palette: {
@@ -23,9 +26,13 @@ const theme = createTheme({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
+    <Provider store={store}>
+      <AuthProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <App />
+        </ThemeProvider>
+      </AuthProvider>
+    </Provider>
   </StrictMode>,
 )
