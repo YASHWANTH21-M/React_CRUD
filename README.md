@@ -1,60 +1,52 @@
-# PeopleOS Employee Management Portal
+# Employee Management Portal
 
-A responsive React + TypeScript employee management portal backed by the Spring Boot service in `D:\Employee_Management`.
+A modern React + TypeScript employee management application for managing employee records with authentication, role-based access, and full CRUD functionality.
 
-## Stack
+## Features
 
-- React 19 + TypeScript
+- User login and registration
+- Role-based access control
+- Employee list, add, edit, and delete actions
+- Search and department filtering
+- Form validation for required fields and invalid values
+- Responsive dashboard UI
+- Redux Toolkit state management
+- Material UI-based interface
+
+## Tech Stack
+
+- React 19
+- TypeScript
 - Vite
-- Axios
+- Redux Toolkit
 - Material UI
-- Spring Boot, REST, JPA, H2
+- Axios
+- Spring Boot backend API
 
-## Run end to end
+## Screenshots
 
-1. Start the backend:
+Add your screenshots here:
+- Login / Register screen
+- Employee dashboard
+- Add/Edit employee dialog
+- Search and filter view
 
-   ```powershell
-   Set-Location D:\Employee_Management
-   .\mvnw.cmd spring-boot:run
-   ```
+## Project Structure
 
-2. Start the frontend in another terminal:
-
-   ```powershell
-   Set-Location D:\FrontEnd
-   npm.cmd install
-   npm.cmd run dev
-   ```
-
-3. Open http://localhost:5173/.
-
-The Vite development proxy forwards `/api/*` to `http://localhost:8080`.
-
-## Frontend commands
-
-```powershell
-npm.cmd run typecheck
-npm.cmd run lint
-npm.cmd run build
-```
-
-## API contract
-
-- `GET /api/employees` - list employees
-- `GET /api/employees/{id}` - get one employee
-- `POST /api/employees` - create an employee
-- `PUT /api/employees/{id}` - update an employee
-- `DELETE /api/employees/{id}` - delete an employee
-
-The form validates required fields, email format, ten-digit phone numbers, positive salary, and joining date. Backend validation and duplicate-email messages are shown in the UI.
-
-
-
-## Backend verification
-
-From `D:\Employee_Management`:
-
-```powershell
-.\mvnw.cmd test
-```
+```bash
+src/
+  api.ts
+  App.tsx
+  hooks.ts
+  store.ts
+  types.ts
+  components/
+    EmployeeForm.tsx
+    EmployeeTable.tsx
+    ConfirmationDialog.tsx
+    ErrorMessage.tsx
+    Loading.tsx
+  context/
+    AuthContext.tsx
+  store/
+    employeeSlice.ts
